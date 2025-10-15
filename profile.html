@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>👤 Player Profile | Tic Tac Toe Ultra Pro</title>
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+body {
+  font-family: 'Poppins', sans-serif;
+  background: radial-gradient(circle at top, #001D3D, #000814);
+  color: #fff;
+  text-align: center;
+  margin: 0;
+  padding: 0;
+}
+
+.container {
+  max-width: 500px;
+  margin: auto;
+  padding: 20px;
+}
+
+.title {
+  font-size: 2em;
+  color: #FFD700;
+  text-shadow: 0 0 15px #FFD700;
+  margin-bottom: 10px;
+}
+
+.profile-card {
+  background: linear-gradient(145deg, #002a55, #001f3d);
+  border-radius: 20px;
+  box-shadow: 0 0 25px rgba(255,215,0,0.3);
+  padding: 20px;
+  position: relative;
+  overflow: hidden;
+  animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%,100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+
+.avatar {
+  width: 110px;
+  height: 110px;
+  border-radius: 50%;
+  border: 3px solid #FFD700;
+  margin-bottom: 10px;
+  object-fit: cover;
+  box-shadow: 0 0 20px rgba(255,215,0,0.5);
+}
+
+.name {
+  font-size: 1.5em;
+  font-weight: 700;
+  margin: 10px 0 5px;
+}
+
+.country {
+  margin-bottom: 10px;
+  font-size: 1.1em;
+}
+
+.country-flag {
+  width: 35px;
+  height: 25px;
+  border-radius: 4px;
+  vertical-align: middle;
+}
+
+.stats {
+  display: flex;
+  justify-content: space-around;
+  margin-top: 15px;
+}
+
+.stat-card {
+  background: linear-gradient(145deg,#003366,#002244);
+  border-radius: 12px;
+  padding: 10px 15px;
+  width: 45%;
+  box-shadow: 0 0 15px rgba(0,0,0,0.3);
+  transition: 0.3s;
+}
+.stat-card:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 20px rgba(255,215,0,0.4);
+}
+
+.stat-title {
+  font-size: 0.9em;
+  color: #aaa;
+}
+.stat-value {
+  font-size: 1.3em;
+  font-weight: 600;
+  margin-top: 5px;
+}
+
+.edit-btn, .back-btn {
+  background: #FFD700;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 12px;
+  margin: 15px 10px;
+  font-weight: bold;
+  cursor: pointer;
+  color: #000;
+  transition: 0.3s;
+}
+.edit-btn:hover, .back-btn:hover {
+  background: #ffb703;
+  transform: scale(1.05);
+}
+
+.edit-section {
+  display: none;
+  margin-top: 15px;
+}
+
+.edit-section input, .edit-section select {
+  padding: 8px;
+  border-radius: 8px;
+  border: none;
+  margin: 6px;
+  width: 80%;
+}
+
+.xp-bar {
+  width: 90%;
+  margin: 20px auto;
+  background: #001a33;
+  border-radius: 10px;
+  overflow: hidden;
+  height: 15px;
+  box-shadow: inset 0 0 5px #000;
+}
+.xp-fill {
+  height: 15px;
+  background: linear-gradient(90deg,#00c6ff,#0072ff);
+  width: 0%;
+  border-radius: 10px;
+  transition: width 1s;
+}
+</style>
+
+<script>
+window.onload = function() {
+  const name = localStorage.getItem("playerName") || "Guest Player";
+  const country = localStorage.getItem("country") || "in";
+  const coins = localStorage.getItem("coins1") || 100;
+  const points = localStorage.getItem("points1") || 0;
+  const xp = Math.min(100, Math.floor(points / 10));
+  const photo = localStorage.getItem("photo") || "default-avatar.png";
+
+  document.getElementById("photo").src = photo;
+  document.getElementById("name").innerText = name;
+  document.getElementById("flag").src = `https://flagcdn.com/48x36/${country}.png`;
+  document.getElementById("coins").innerText = coins;
+  document.getElementById("points").innerText = points;
+  document.getElementById("xp-fill").style.width = xp + "%";
+  document.getElementById("xp-text").innerText = xp + "%";
+
+  document.getElementById("edit-name").value = name;
+  document.getElementById("edit-country").value = country;
+};
+
+function toggleEdit() {
+  const sec = document.querySelector(".edit-section");
+  sec.style.display = sec.style.display === "none" ? "block" : "none";
+}
+
+function saveProfile() {
+  const name = document.getElementById("edit-name").value;
+  const country = document.getElementById("edit-country").value;
+  const file = document.getElementById("edit-photo").files[0];
+
+  localStorage.setItem("playerName", name);
+  localStorage.setItem("country", country);
+
+  if (file) {
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      localStorage.setItem("photo", e.target.result);
+      location.reload();
+    };
+    reader.readAsDataURL(file);
+  } else {
+    location.reload();
+  }
+}
+</script>
+</head>
+
+<body>
+<div class="container">
+  <h1 class="title">👑 Player Profile</h1>
+
+  <div class="profile-card">
+    <img id="photo" class="avatar" src="default-avatar.png" alt="">
+    <div class="name" id="name"></div>
+    <div class="country">
+      <img id="flag" class="country-flag" src=""> <span id="countryName"></span>
+    </div>
+
+    <div class="stats">
+      <div class="stat-card">
+        <div class="stat-title">💰 Coins</div>
+        <div id="coins" class="stat-value"></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-title">🏅 Points</div>
+        <div id="points" class="stat-value"></div>
+      </div>
+    </div>
+
+    <div class="xp-bar"><div id="xp-fill" class="xp-fill"></div></div>
+    <p>🎯 XP Progress: <span id="xp-text"></span></p>
+  </div>
+
+  <button class="edit-btn" onclick="toggleEdit()">✏️ Edit Profile</button>
+  <button class="back-btn" onclick="window.location.href='online.html'">⬅️ Back</button>
+
+  <div class="edit-section">
+    <h3>🛠️ Edit Profile</h3>
+    <input type="text" id="edit-name" placeholder="Enter Name"><br>
+    <label>🌍 Select Country:</label><br>
+    <select id="edit-country">
+      <option value="in">🇮🇳 India</option>
+      <option value="us">🇺🇸 USA</option>
+      <option value="gb">🇬🇧 UK</option>
+      <option value="br">🇧🇷 Brazil</option>
+      <option value="fr">🇫🇷 France</option>
+      <option value="de">🇩🇪 Germany</option>
+      <option value="jp">🇯🇵 Japan</option>
+      <option value="ru">🇷🇺 Russia</option>
+      <option value="pk">🇵🇰 Pakistan</option>
+      <option value="bd">🇧🇩 Bangladesh</option>
+    </select><br>
+    <label>🖼️ Upload Picture:</label><br>
+    <input type="file" id="edit-photo" accept="image/*"><br>
+    <button class="edit-btn" onclick="saveProfile()">💾 Save</button>
+  </div>
+</div>
+</body>
+</html>
