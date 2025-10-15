@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tic Tac Toe Ultra Pro</title>
+  <link rel="stylesheet" href="style.css">
+
+  <!-- ✅ Added PWA Manifest -->
+  <link rel="manifest" href="foldername/manifest.json">
+
+  <script>
+    // ====== Load Profile and Stats ======
+    let coins = parseInt(localStorage.getItem("coins")) || 100;
+    let xp = parseInt(localStorage.getItem("xp")) || 0;
+    let name = localStorage.getItem("playerName") || "Guest Player";
+    let country = localStorage.getItem("country") || "🌍 Earth";
+    let photo = localStorage.getItem("photo") || "default-avatar.png";
+
+    function updateStats() {
+      document.getElementById("coins").innerText = `💰 ${coins}`;
+      document.getElementById("xp").innerText = `🧠 ${xp} XP`;
+      document.getElementById("playerName").innerText = name;
+      document.getElementById("country").innerText = country;
+      document.getElementById("profileImg").src = photo;
+    }
+
+    function openPage(page) {
+      window.location.href = page;
+    }
+
+    function editProfile() {
+      let newName = prompt("Enter your name:", name);
+      let newCountry = prompt("Enter your country:", country);
+      if (newName) {
+        localStorage.setItem("playerName", newName);
+        name = newName;
+      }
+      if (newCountry) {
+        localStorage.setItem("country", newCountry);
+        country = newCountry;
+      }
+      updateStats();
+    }
+
+    window.onload = () => updateStats();
+  </script>
+</head>
+<body>
+
+  <div class="container">
+    <h1 class="title">🎮 Tic Tac Toe Ultra Pro</h1>
+
+    <!-- Profile Card -->
+    <div class="profile-card">
+      <img id="profileImg" class="avatar" src="default-avatar.png" alt="Player">
+      <div class="info">
+        <h2 id="playerName">Guest Player</h2>
+        <p id="country">🌍 Earth</p>
+        <div class="stats">
+          <span id="coins">💰 0</span>
+          <span id="xp">🧠 0 XP</span>
+        </div>
+        <button class="edit-btn" onclick="editProfile()">✏️ Edit Profile</button>
+      </div>
+    </div>
+
+    <!-- Main Menu -->
+    <div class="menu">
+      <button onclick="openPage('costom room.html')">👤 costom room</button>
+      <button onclick="openPage('profile.html')">👤 Profile</button>
+    </div>
+
+    <footer>
+      <p>© 2025 Tic Tac Toe Ultra Pro | Created by <b>Rehan Khan</b></p>
+    </footer>
+  </div>
+
+  <!-- ✅ Added Service Worker Registration -->
+  <script>
+    <script>
+        .then(reg => console.log('✅ Service Worker Registered:', reg.scope))
+        .catch(err => console.log('❌ Service Worker Registration Failed:', err));
+        <script>
+if('serviceWorker' in navigator){
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('service-worker.js');
+  });
+}
+</script>
+
+</body>
+</html>
