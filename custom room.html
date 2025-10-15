@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tic Tac Toe Ultra Pro</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
+  body { margin:0; padding:0; font-family:'Poppins', sans-serif; background: linear-gradient(135deg, #0f2027, #203a43, #2c5364); display:flex; flex-direction:column; align-items:center; min-height:100vh; color:white;}
+  h1 { text-align:center; margin:20px 0; text-shadow: 2px 2px 5px #000; }
+  .menu-card, .game-card { background: rgba(0,0,0,0.6); border-radius:15px; padding:20px; margin:15px; box-shadow: 0 0 20px #00f; width:90%; max-width:400px; }
+  .menu-card button, .game-card button { padding:10px 20px; margin:10px 5px; border:none; border-radius:12px; font-weight:bold; cursor:pointer; color:white; background: linear-gradient(45deg,#ff512f,#dd2476); box-shadow:0 0 10px #ff512f; transition: all 0.3s;}
+  .menu-card button:hover, .game-card button:hover { box-shadow:0 0 20px #ffdd00; transform:scale(1.1);}
+  .board { display:grid; gap:5px; margin:20px auto; justify-content:center; }
+  .cell { display:flex; align-items:center; justify-content:center; font-size:2em; background:#111; border-radius:10px; cursor:pointer; transition:0.2s; color:#00ffea; font-weight:bold; user-select:none;}
+  .cell:hover { background:#222; transform:scale(1.1); }
+  #countdown { font-size:3em; font-weight:bold; color:red; margin:10px; }
+  .info { display:flex; justify-content:space-between; margin-top:10px; }
+  #preGameAd { text-align:center; margin:15px; }
+  .hidden { display:none; }
+</style>
+
+<!-- Google AdSense Auto Ads -->
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3653832514630081"
+     crossorigin="anonymous"></script>
+</head>
+<body>
+<h1>🎮 Tic Tac Toe Ultra Pro</h1>
+
+<!-- Pre-game Ad -->
+<div id="preGameAd">
+  <ins class="adsbygoogle"
+       style="display:block"
+       data-ad-client="ca-pub-3653832514630081"
+       data-ad-slot="9105843837"
+       data-ad-format="auto"
+       data-full-width-responsive="true"></ins>
+  <script>
+    (adsbygoogle = window.adsbygoogle || []).push({});
+  </script>
+</div>
+
+<div class="menu-card" id="menu">
+  <label>Board Size:</label><br>
+  <button onclick="selectSize(3)">3 × 3</button>
+  <button onclick="selectSize(5)">5 × 5</button>
+  <button onclick="selectSize(6)">6 × 6</button><br>
+  <button onclick="playMode='AI'; startGame()">🧠 Play vs AI</button>
+  <button onclick="playMode='2P'; startGame()">👫 2 Player</button>
+</div>
+
+<div class="game-card hidden" id="gameCard">
+  <div id="countdown"></div>
+  <div class="board" id="board"></div>
+  <div class="info">
+    <span>💰 Coins: <b id="coins">0</b></span>
+    <span>🏅 Points: <b id="points">0</b></span>
+  </div>
+  <div id="turnInfo" style="margin-top:10px; font-weight:bold;"></div>
+  <button onclick="endGame()">🏁 End Game</button>
+</div>
+
+<audio id="soundMove" src="https://www.soundjay.com/button/beep-07.wav"></audio>
+<audio id="soundWin" src="https://www.soundjay.com/button/button-3.wav"></audio>
+<audio id="soundDraw" src="https://www.soundjay.com/button/button-10.wav"></audio>
+
+<script>
+let board=[], size=3, winLine=3, currentPlayer='X';
+let coins = parseInt(localStorage.getItem('coins'))||100;
+let points = parseInt(localStorage.getItem('points'))||0;
+let playMode='AI';
+let selectedSize=3;
+
+const boardEl=document.getElementById('board');
+const coinsEl=document.getElementById('coins');
+const pointsEl=document.getElementById('points');
+const turnInfo=document.getElementById('turnInfo');
+const menu=document.getElementById('menu');
+const gameCard=document.getElementById('gameCard');
+const countdownEl=document.getElementById('countdown');
+const soundMove=document.getElementById('soundMove');
+const soundWin=document.getElementById('soundWin');
+const soundDraw=document.getElementById('soundDraw');
+const preAd=document.getElementById('preGameAd');
+
+coinsEl.textContent=coins; pointsEl.textContent=points;
+
+function selectSize(sz){ selectedSize=sz; size=sz; winLine=(sz===3)?3:(sz===5)?4:5; }
+
+function startGame(){
+  size=selectedSize;
+  winLine=(size===3)?3:(size===5)?4:5;
+  board=Array(size).fill(null).map(()=>Array(size).fill(''));
+  currentPlayer='X';
+  preAd.style.display='none'; // hide ad
+  menu.classList.add('hidden');
+  gameCard.classList.remove('hidden');
+  createBoardUI();
+  countdown(3);
+}
+
+function createBoardUI(){
+  boardEl.style.gridTemplateColumns=`repeat(${size},70px)`;
+  boardEl.style.gridTemplateRows=`repeat(${size},70px)`;
+  boardEl.innerHTML='';
+  for(let r=0;r<size;r++){
+    for(let c=0;c<size;c++){
+      const cell=document.createElement('div');
+      cell.className='cell';
+      cell.dataset.r=r; cell.dataset.c=c;
+      cell.onclick=()=>playerMove(r,c,cell);
+      boardEl.appendChild(cell);
+    }
+  }
+}
+
+function countdown(sec){
+  let t=sec;
+  countdownEl.textContent=t;
+  const interval=setInterval(()=>{
+    t--; countdownEl.textContent=t;
+    if(t<=0){ clearInterval(interval); countdownEl.textContent=''; updateTurnInfo(); if(playMode==='AI' && currentPlayer==='O') setTimeout(aiMove,500);}
+  },1000);
+}
+
+function updateTurnInfo(){ turnInfo.textContent=`Current Turn: ${currentPlayer}`; }
+
+function playerMove(r,c,cell){
+  if(board[r][c]!=='' || countdownEl.textContent!=='') return;
+  board[r][c]=currentPlayer; cell.textContent=currentPlayer; soundMove.play();
+  if(checkWinner(r,c)){
+    soundWin.play(); coins+=100; points+=10; updateScore(); setTimeout(()=>alert(`${currentPlayer} wins!`),100);
+    return;
+  }
+  if(board.flat().every(v=>v!=='')){
+    soundDraw.play(); setTimeout(()=>alert("Draw!"),100); return;
+  }
+  currentPlayer=(currentPlayer==='X')?'O':'X';
+  updateTurnInfo();
+  if(playMode==='AI' && currentPlayer==='O') setTimeout(aiMove,500);
+}
+
+function aiMove(){
+  let r,c;
+  if(size===3){
+    [r,c]=minimaxAI(); 
+  } else {
+    const empty=[];
+    for(let i=0;i<size;i++) for(let j=0;j<size;j++) if(board[i][j]==='') empty.push([i,j]);
+    [r,c]=empty[Math.floor(Math.random()*empty.length)];
+  }
+  playerMove(r,c,boardEl.children[r*size+c]);
+}
+
+function minimaxAI(){
+  let bestScore=-Infinity;
+  let move;
+  for(let i=0;i<3;i++){
+    for(let j=0;j<3;j++){
+      if(board[i][j]===''){
+        board[i][j]='O';
+        let score=minimax(board,false);
+        board[i][j]='';
+        if(score>bestScore){ bestScore=score; move=[i,j]; }
+      }
+    }
+  }
+  return move;
+}
+
+function minimax(b, isMax){
+  const winner=checkWinnerMini(b);
+  if(winner==='O') return 10;
+  if(winner==='X') return -10;
+  if(b.flat().every(v=>v!=='')) return 0;
+  let best=isMax?-Infinity:Infinity;
+  for(let i=0;i<3;i++){
+    for(let j=0;j<3;j++){
+      if(b[i][j]===''){
+        b[i][j]=isMax?'O':'X';
+        let score=minimax(b,!isMax);
+        b[i][j]='';
+        if(isMax) best=Math.max(score,best); else best=Math.min(score,best);
+      }
+    }
+  }
+  return best;
+}
+
+function checkWinnerMini(b){
+  for(let r=0;r<3;r++){ if(b[r][0] && b[r][0]===b[r][1] && b[r][1]===b[r][2]) return b[r][0]; }
+  for(let c=0;c<3;c++){ if(b[0][c] && b[0][c]===b[1][c] && b[1][c]===b[2][c]) return b[0][c]; }
+  if(b[0][0] && b[0][0]===b[1][1]
+  && b[1][1]===b[2][2]) return b[0][0];
+  if(b[0][2] && b[0][2]===b[1][1] && b[1][1]===b[2][0]) return b[0][2];
+  return null;
+}
+
+// ---------------- Generic checkWinner for all sizes ----------------
+function checkWinner(r,c){
+  const dirs=[[0,1],[1,0],[1,1],[1,-1]];
+  for(const [dr,dc] of dirs){
+    let count=1;
+    for(let i=1;i<winLine;i++){
+      const nr=r+dr*i, nc=c+dc*i;
+      if(nr<0||nr>=size||nc<0||nc>=size||board[nr][nc]!==currentPlayer) break;
+      count++;
+    }
+    for(let i=1;i<winLine;i++){
+      const nr=r-dr*i, nc=c-dc*i;
+      if(nr<0||nr>=size||nc<0||nc>=size||board[nr][nc]!==currentPlayer) break;
+      count++;
+    }
+    if(count>=winLine) return true;
+  }
+  return false;
+}
+
+// ---------------- Score update ----------------
+function updateScore(){
+  coinsEl.textContent=coins;
+  pointsEl.textContent=points;
+  localStorage.setItem('coins',coins);
+  localStorage.setItem('points',points);
+}
+
+// ---------------- End Game ----------------
+function endGame(){
+  gameCard.classList.add('hidden');
+  menu.classList.remove('hidden');
+  currentPlayer='X';
+  countdownEl.textContent='';
+}
+
+// Optional: Reset coins/points
+function resetScore(){
+  coins=100; points=0; updateScore();
+}
+</script>
+</body>
+</html>
